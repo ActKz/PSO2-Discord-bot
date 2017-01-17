@@ -6,8 +6,12 @@ var Discord = require("discord.js");
 var bot = new Discord.Client();
 var url = "http://pso2.swiki.jp/";
 const helplist = `
+    Command List:
+    --------------------------
     !emerg -> Show whole weekend emergency
     !help  -> Show available commands
+    --------------------------
+    Notice:'＊' means special events or server maintainence.
 `
 
 bot.on("message", msg => {
@@ -51,7 +55,12 @@ bot.on("message", msg => {
               if($(s).text() == ""){
                   res += "　　　|";
               } else if(j != 0){
-                  res += $(s).text()+"  |";
+                  var colspan = $(s).attr('colspan');
+                  if(typeof colspan !== typeof undefined && colspan !== false){
+                      res += "＊＊＊|".repeat(colspan);
+                  }else{
+                      res += $(s).text()+"  |";
+                  }
               } else{
                   res += $(s).text()+"|";
               }
