@@ -4,11 +4,12 @@ var request = require('request')
   , jquery = require('jquery');
 var Discord = require("discord.js");
 var bot = new Discord.Client();
-var url = "http://pso2.swiki.jp/";
+
 const helplist = `
     Command List:
     --------------------------
     !emerg -> Show whole weekend emergency
+    !twit <PositiveInteger> -> Show number of tweets from @pso2_emg_hour (Number too big may not work), default is 3
     !help  -> Show available commands
     --------------------------
     Notice:'＊' means special events or server maintainence.
@@ -18,7 +19,28 @@ bot.on("message", msg => {
   if (msg.content == "!help") {
       msg.reply(helplist);
   }
+  if (msg.content.startsWith("!twit")){
+      var url = "https://twitter.com/pso2_emg_hour?lang=zh-tw";
+      var res = "\nLatest\n-------------------\n";
+      var tweets = 3;
+      let argv = msg.content.split(" ");
+      if(argv.length > 1 && parseInt(argv[1])!= NaN && argv[1] > 0){
+          tweets = argv[1];
+      }
+      request(url, function(err, resp, body){
+          $ = cheerio.load(body);
+          $('.TweetTextSize').each(function(i, s){
+              if(i > 0 && i <= tweets){
+                console.log($(s).text());
+                res += $(s).text()+"\n";
+                res += "-------------------\n";
+              }
+          });
+          msg.reply(res);
+      });
+  }
   if (msg.content == "!emerg") {
+      var url = "http://pso2.swiki.jp/";
       var res = "\n";
       request(url, function(err, resp, body){
         $ = cheerio.load(body);
