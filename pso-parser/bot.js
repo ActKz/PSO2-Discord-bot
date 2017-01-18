@@ -46,9 +46,9 @@ bot.on("message", msg => {
         $ = cheerio.load(body);
         $('.style_table').eq(4).children('thead').children('tr').children('td').each(function(i, s){
             if($(s).text() == ""){
-                res += "XX(X)|";
+                res += "　　　|";
             }else if($(s).text() != "終日ブーストイベント00:00～23:59"){
-                res += $(s).text().replace(/[0-9]/g, function(m){
+                res += $(s).text().slice(0,-1).replace(/[0-9]/g, function(m){
                     return {
                         '0': '０',
                         '1': '１',
@@ -62,7 +62,7 @@ bot.on("message", msg => {
                         '9': '９',
                     }[m];
                 });
-                if(i<3){
+                if($(s).text().length < 3){
                     res += '　|';
                 }else{
                     res += '|';
@@ -75,16 +75,34 @@ bot.on("message", msg => {
         $('.style_table').eq(4).children('tbody').children('tr').each(function(i, p){
             $(p).children('td').each(function(j, s){
               if($(s).text() == ""){
-                  res += "　　　|";
+                  res += "　　|";
               } else if(j != 0){
                   var colspan = $(s).attr('colspan');
                   if(typeof colspan !== typeof undefined && colspan !== false){
-                      res += "＊＊＊|".repeat(colspan);
+                      res += "＊＊|".repeat(colspan);
+                  }else if($(s).text().length > 2){
+                      res += "＊＊|";
                   }else{
-                      res += $(s).text()+"  |";
+                      res += $(s).text()+"|";
                   }
               } else{
-                  res += $(s).text()+"|";
+                res += $(s).text().replace(/[0-9()]/g, function(m){
+                    return {
+                        '0': '０',
+                        '1': '１',
+                        '2': '２',
+                        '3': '３',
+                        '4': '４',
+                        '5': '５',
+                        '6': '６',
+                        '7': '７',
+                        '8': '８',
+                        '9': '９',
+                        '(': '',
+                        ')': ''
+                    }[m];
+                });
+                  res += "|";
               }
             });
             res = res.slice(0,-4);
