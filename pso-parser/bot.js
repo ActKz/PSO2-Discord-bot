@@ -59,18 +59,18 @@ bot.on("message", msg => {
         });
     }
     if (msg.content == "!emerg") {
-        let url = "http://pso2.swiki.jp/",
+        let url = "http://pso2.swiki.jp/index.php?%E7%B7%8A%E6%80%A5%E6%8E%B2%E7%A4%BA%E6%9D%BF%2F%E4%BA%88%E5%AE%9A%E8%A1%A8",
             res = "\n";
         request(url, function(err, resp, body){
             $ = cheerio.load(body);
-            $('.style_table').eq(4).children('thead').children('tr').children('td').each(function(i, s){
+            $('.style_table').eq(1).children('thead').children('tr').children('td').each(function(i, s){
                 let len = $(s).text().length;
                 if($(s).text().length <= 3){
                     res += '　'.repeat(3-len) + convertFullWidth($(s).text().slice(0,-1)) + "|";
                 }
             });
             res = res.slice(0,-1)+"\n";
-            $('.style_table').eq(4).children('tbody').children('tr').each(function(i, p){
+            $('.style_table').eq(1).children('tbody').children('tr').each(function(i, p){
                 $(p).children('td').each(function(j, s){
                     if($(s).text() == ""){
                         res += "　　|";
