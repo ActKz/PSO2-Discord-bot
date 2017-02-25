@@ -1,7 +1,8 @@
 const config = require('../config.json');
 var request = require('request'),
     cheerio = require('cheerio'),
-    Discord = require("discord.js");
+    Discord = require("discord.js"),
+    eaw = require('eastasianwidth');
 var bot = new Discord.Client();
 
 const helplist = `
@@ -13,6 +14,7 @@ const helplist = `
     --------------------------
     Notice:'＊' means special events or server maintainence.
 `
+function isFullWidth(c){ return eaw.eastAsianWidth(c) == 'W';}
 
 // Also delete '(' ')'
 function convertFullWidth(str){
@@ -70,18 +72,38 @@ bot.on("message", msg => {
                 }
             });
             res = res.slice(0,-1)+"\n";
+            let rowspan = 0, rowshift = [0];
             $('.style_table').eq(1).children('tbody').children('tr').each(function(i, p){
+                if(rowshift[rowshift.length-1] != 0){
+                    res += "　　　|";
+                    $(p).children('td').each(function(j, s){
+                        res += "　　|".repeat(rowshift.shift());
+                        let text = (isFullWidth($(s).text()[0]) && isFullWidth($(s).text()[1]))? $(s).text().slice(0,2)+'|': "＊＊|";
+                        res += text;
+                    });
+                    res += "　　|".repeat(rowshift.shift());
+                    rowshift = [0];
+                }else{
                 $(p).children('td').each(function(j, s){
-                    if($(s).text() == ""){
-                        res += "　　|";
-                    } else if(j != 0){
-                        let text = ($(s).text().length<=2) ? $(s).text()+"|" : "＊＊|",
+                    if(j != 0){
+                        let text = ($(s).text() == "")?"　　|":
+                            (isFullWidth($(s).text()[0]) && isFullWidth($(s).text()[1]))? $(s).text().slice(0,2)+'|': "＊＊|",
                             colspan = $(s).attr('colspan') || 1;
+                        if($(s).attr('rowspan') == rowspan){
+                            rowshift[rowshift.length-1] += parseInt(colspan);
+                        } else {
+                            rowshift.push(0);
+                        }
+                            console.log(colspan);
                         res += text.repeat(colspan);
                     } else{
+                        rowspan = $(s).attr('rowspan');
                         res += convertFullWidth($(s).text()) + "|";
                     }
                 });
+                console.log(rowshift);
+                }
+
                 res = res.slice(0,-4) + "\n"; // forget why 4!
             });
             console.log(res);
