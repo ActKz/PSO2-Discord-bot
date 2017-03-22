@@ -1,4 +1,4 @@
-const config = require('../config.json');
+const token = require("../config.json");
 var request = require('request'),
     cheerio = require('cheerio'),
     Discord = require("discord.js"),
@@ -14,7 +14,7 @@ const helplist = `
     --------------------------
     Notice:'＊' means special events or server maintainence.
 `
-function isFullWidth(c){ return eaw.eastAsianWidth(c) == 'W';}
+function isFullWidth(c){ return c != undefined && eaw.eastAsianWidth(c) == 'W';}
 
 // Also delete '(' ')'
 function convertFullWidth(str){
@@ -62,15 +62,18 @@ bot.on("message", msg => {
     }
     if (msg.content == "!emerg") {
         let url = "http://pso2.swiki.jp/index.php?%E7%B7%8A%E6%80%A5%E6%8E%B2%E7%A4%BA%E6%9D%BF%2F%E4%BA%88%E5%AE%9A%E8%A1%A8",
-            res = "\n";
+            res = "\n",
+			headlen = 0;
         request(url, function(err, resp, body){
             $ = cheerio.load(body);
             $('.style_table').eq(1).children('thead').children('tr').children('td').each(function(i, s){
                 let len = $(s).text().length;
                 if($(s).text().length <= 3){
                     res += '　'.repeat(3-len) + convertFullWidth($(s).text().slice(0,-1)) + "|";
+					headlen += 1;
                 }
             });
+			console.log(headlen);
             res = res.slice(0,-1)+"\n";
             let rowspan = 0, rowshift = [0];
             $('.style_table').eq(1).children('tbody').children('tr').each(function(i, p){
@@ -83,6 +86,7 @@ bot.on("message", msg => {
                     });
                     res += "　　|".repeat(rowshift.shift());
                     rowshift = [0];
+					console.log(rowshift);
                 }else{
                 $(p).children('td').each(function(j, s){
                     if(j != 0){
@@ -94,14 +98,16 @@ bot.on("message", msg => {
                         } else {
                             rowshift.push(0);
                         }
-                            console.log(colspan);
                         res += text.repeat(colspan);
                     } else{
                         rowspan = $(s).attr('rowspan');
                         res += convertFullWidth($(s).text()) + "|";
                     }
+					if(rowshift[0] == headlen){
+						rowshift[0] = 0;
+					}
+					console.log(rowshift);
                 });
-                console.log(rowshift);
                 }
 
                 res = res.slice(0,-4) + "\n"; // forget why 4!
@@ -112,4 +118,5 @@ bot.on("message", msg => {
     }
 });
 
-bot.login(config.token);
+bot.login(token.token);
+
