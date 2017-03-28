@@ -4,17 +4,32 @@ var request = require('request'),
     Discord = require("discord.js"),
     eaw = require('eastasianwidth');
 var bot = new Discord.Client();
-
+var charlist = ['＃','＄','＆','＊','＠','！','？','＾'];
 const helplist = `
     Command List:
     --------------------------
     !emerg -> Show whole weekend emergency
-    !twit <PositiveInteger> -> Show number of tweets from @pso2_emg_hour (Number too big may not work), default is 3
+    !twit <PositiveInteger> -> Show number of tweets from @pso2_emg_hour (Number too big may not work), default is 2
     !help  -> Show available commands
     --------------------------
     Notice:'＊' means special events or server maintainence.
 `
+var TooLong = {};
 function isFullWidth(c){ return c != undefined && eaw.eastAsianWidth(c) == 'W';}
+function buildTooLong(txt){
+    if (isFullWidth(txt[0]) && isFullWidth(txt[1])){
+        return txt.slice(0,2)+'|';
+    }else{
+        if(txt in TooLong){
+            return TooLong[txt].repeat(2)+'|';
+        }else{
+            let spec = charlist.pop();
+            TooLong[txt] = spec;
+            return spec.repeat(2)+'|';
+        }
+
+    }
+}
 
 // Also delete '(' ')'
 function convertFullWidth(str){
@@ -44,7 +59,7 @@ bot.on("message", msg => {
         let url = "https://twitter.com/pso2_emg_hour?lang=zh-tw",
             div = "-------------------\n",
             res = "\nLatest\n" + div,
-            tweets = 3,
+            tweets = 2,
             argv = msg.content.split(" ");
         if(argv.length > 1 && parseInt(argv[1])!= NaN && argv[1] > 0){
             tweets = argv[1];
@@ -81,8 +96,7 @@ bot.on("message", msg => {
                     res += "　　　|";
                     $(p).children('td').each(function(j, s){
                         res += "　　|".repeat(rowshift.shift());
-                        let text = (isFullWidth($(s).text()[0]) && isFullWidth($(s).text()[1]))? $(s).text().slice(0,2)+'|': "＊＊|";
-                        res += text;
+                        res += buildTooLong($(s).text());
                     });
                     res += "　　|".repeat(rowshift.shift());
                     rowshift = [0];
@@ -91,7 +105,7 @@ bot.on("message", msg => {
                 $(p).children('td').each(function(j, s){
                     if(j != 0){
                         let text = ($(s).text() == "")?"　　|":
-                            (isFullWidth($(s).text()[0]) && isFullWidth($(s).text()[1]))? $(s).text().slice(0,2)+'|': "＊＊|",
+                            buildTooLong($(s).text()),
                             colspan = $(s).attr('colspan') || 1;
                         if($(s).attr('rowspan') == rowspan){
                             rowshift[rowshift.length-1] += parseInt(colspan);
@@ -112,6 +126,9 @@ bot.on("message", msg => {
 
                 res = res.slice(0,-4) + "\n"; // forget why 4!
             });
+            for (var key in TooLong){
+                res += TooLong[key]+": "+key+"\n";
+            }
             console.log(res);
             msg.reply(res);
       });
