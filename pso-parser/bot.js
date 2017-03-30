@@ -12,7 +12,6 @@ const helplist = `
     !twit <PositiveInteger> -> Show number of tweets from @pso2_emg_hour (Number too big may not work), default is 2
     !help  -> Show available commands
     --------------------------
-    Notice:'＊' means special events or server maintainence.
 `
 var TooLong = {};
 function isFullWidth(c){ return c != undefined && eaw.eastAsianWidth(c) == 'W';}

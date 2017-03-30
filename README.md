@@ -1,5 +1,16 @@
 # PSO2 Discord bot
 
+## Screenshot
+
+![!emerg](/screenshot/screenshot_emerg.png "!emerg")
+![!twit](/screenshot/screenshot_twit.png "!twit")
+
+## Commands
+
+- !emerg -> Show whole weekend emergency
+- !twit <PositiveInteger> -> Show number of tweets from @pso2_emg_hour (Number too big may not work), default is 2
+- !help  -> Show available commands
+
 ## Features
 
 This bot could only parse the emergency events table on [PSO2 wiki](http://pso2.swiki.jp/) now.
