@@ -10,6 +10,8 @@
 - !emerg -> Show whole weekend emergency
 - !twit <PositiveInteger> -> Show number of tweets from @pso2_emg_hour (Number too big may not work), default is 2
 - !help  -> Show available commands
+- !update -> Update event cache
+- !re -> Reset the event name list
 
 ## Features
 
