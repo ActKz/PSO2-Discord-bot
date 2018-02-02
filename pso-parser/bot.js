@@ -65,6 +65,10 @@ function updateEvent(msg){
 		headlen = 0,
         res = "\n";
     request(url, function(err, resp, body){
+        if(err){
+            msg.reply("ERROR: "+err);
+            return;
+        }
         $ = cheerio.load(body);
         $('.style_table').eq(1).children('thead').children('tr').children('td').each(function(i, s){
             let len = $(s).text().length;
@@ -140,6 +144,10 @@ bot.on("message", msg => {
             tweets = argv[1];
         }
         request(url, function(err, resp, body){
+            if(err){
+                msg.reply("ERROR: "+err);
+                return;
+            }
             $ = cheerio.load(body);
             $('.TweetTextSize').each(function(i, s){
                 if(i > 0 && i <= tweets){
@@ -160,6 +168,9 @@ bot.on("message", msg => {
     if (msg.content == "!update") {
         eventList.d = getCurrJPDate();
         updateEvent(msg);
+    }
+    if(msg.content == "!妹妹"){
+        msg.reply("你沒有妹妹");
     }
 });
 
