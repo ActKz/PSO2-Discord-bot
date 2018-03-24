@@ -83,8 +83,13 @@ function updateEvent(msg){
             if(rowshift[rowshift.length-1] != 0){
                 res += "　　　|";
                 $(p).children('td').each(function(j, s){
+                    console.log(rowshift);
                     res += "　　|".repeat(rowshift.shift());
-                    res += buildTooLong($(s).text());
+                    let colspan = $(s).attr('colspan') || 1;
+                    res += buildTooLong($(s).text()).repeat(colspan);
+                    if(colspan > 1){
+                        res += "　　|".repeat(rowshift.shift());
+                    }
                 });
                 res += "　　|".repeat(rowshift.shift());
                 rowshift = [0];
