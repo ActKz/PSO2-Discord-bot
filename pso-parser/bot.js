@@ -1,3 +1,4 @@
+"use strict";
 const token = require("../config.json");
 var request = require('request'),
     cheerio = require('cheerio'),
@@ -7,6 +8,7 @@ var bot = new Discord.Client();
 var eventList = {};
 var day;
 var charlist = ['＃','＄','＆','＊','＠','！','？','＾'];
+var randList = {};
 const helplist = `
     Command List:
     --------------------------
@@ -193,8 +195,62 @@ bot.on("message", msg => {
         eventList.d = getCurrJPDate();
         updateEvent(msg);
     }
-    if(msg.content == "!妹妹"){
-        msg.reply("你沒有妹妹");
+    if (msg.content.startsWith("!addList")) {
+        if (Object.keys(randList).length > 5) {
+            msg.reply("Please subscribe 4.99 to unlock more list");
+        } else {
+            let tok = msg.content.split(/\s+/);
+            console.log(tok);
+            if (tok.length < 3) {
+                msg.reply("!addList LIST_NAME LIST_ITEM(,LIST_ITEM,...)");
+            } else {
+                if(tok[1] in randList) {
+                    randList[tok[1]] = randList[tok[1]].concat(tok.slice(2));
+                    randList[tok[1]] = randList[tok[1]].filter((v, i, a) => a.indexOf(v) === i);
+                } else {
+                    randList[tok[1]] = tok.slice(2);
+                }
+
+                msg.reply(tok[1] + ": (" + randList[tok[1]].join(",") + ")");
+            }
+        }
+    }
+    if (msg.content.startsWith("!clearList")) {
+        randList = {};
+        msg.reply("Okay, clear");
+    }
+    if (msg.content.startsWith("!幫我選")) {
+        let tok = msg.content.split(/\s+/);
+        if(tok.length != 3 | !(tok[1] in randList)) {
+            msg.reply("!幫我選 LIST_NAME COUNT");
+        } else {
+            let c = Math.min(parseInt(tok[2], 10), randList[tok[1]].length);
+            console.log(c);
+            let p = [];
+            for(let s = 0; s < randList[tok[1]].length; s++) {
+                p.push([Math.random(), randList[tok[1]][s]]);
+            }
+            p.sort(function(a, b){return a[0] < b[0]});
+            let res = "";
+            for(let s = 0; s < c; s++) {
+                res += p[s][1] + " ";
+            }
+            msg.reply(res);
+        }
+    }
+    if (msg.content.startsWith("!曬卡")) {
+        const a = msg.mentions._guild.emojis.find(emoji => emoji.name === "chick");
+        const aa = msg.mentions._guild.emojis.find(emoji => emoji.name === "chicken");
+        let res = ``;
+        for(let s = 0; s < 10; s++) {
+            if(Math.random() > 0.03) {
+                res += `${a}`;
+            } else {
+                res += `${aa}`;
+            }
+        }
+        res += msg.content.substr(3);
+        msg.reply(res);
     }
 });
 
