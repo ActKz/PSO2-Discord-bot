@@ -66,9 +66,9 @@ function getCurrJPDate(){
 }
 
 function parseHtml(msg, body){
-	headlen = 0,
+	let headlen = 0,
     res = "\n";
-    $ = cheerio.load(body);
+    var $ = cheerio.load(body);
     $('.style_table').eq(1).children('thead').children('tr').children('td').each(function(i, s){
         let len = $(s).text().length;
         if($(s).text().length <= 3){
@@ -174,7 +174,7 @@ bot.on("message", msg => {
                 msg.reply("ERROR: "+err);
                 return;
             }
-            $ = cheerio.load(body);
+            var $ = cheerio.load(body);
             $('.TweetTextSize').each(function(i, s){
                 if(i > 0 && i <= tweets){
                   console.log($(s).text());
@@ -239,14 +239,28 @@ bot.on("message", msg => {
         }
     }
     if (msg.content.startsWith("!曬卡")) {
-        const a = msg.mentions._guild.emojis.find(emoji => emoji.name === "chick");
-        const aa = msg.mentions._guild.emojis.find(emoji => emoji.name === "chicken");
-        let res = ``;
+        const silver = msg.mentions._guild.emojis.find(emoji => emoji.name === "silver");
+        const golden = msg.mentions._guild.emojis.find(emoji => emoji.name === "golden");
+        const chicken = msg.mentions._guild.emojis.find(emoji => emoji.name === "chicken");
+        if(msg.content.includes("發大財")){
+            msg.reply(`${chicken}${chicken}${chicken}${chicken}${chicken}${chicken}${chicken}${chicken}${chicken}${chicken}`);
+            return;
+        }
+        let res = ``, all_sv = 0;
         for(let s = 0; s < 10; s++) {
-            if(Math.random() > 0.03) {
-                res += `${a}`;
+            let r = Math.random();
+            if(r > 0.30) {
+                all_sv++;
+                if(all_sv == 10) {
+                    res += `${golden} (保底)`;
+                } else {
+                    res += `${silver}`;
+
+                }
+            } else if(r > 0.07) {
+                res += `${golden}`;
             } else {
-                res += `${aa}`;
+                res += `${chicken}`;
             }
         }
         res += msg.content.substr(3);
@@ -256,3 +270,6 @@ bot.on("message", msg => {
 
 
 bot.login(token.token);
+bot.on('error', (err) => {
+    console.log(err);
+});
